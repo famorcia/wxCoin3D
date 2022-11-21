@@ -149,7 +149,7 @@ TestGLCanvas::TestGLCanvas(wxWindow *parent,
     m_gldata.zoom   = 45.0f;
 
 
-    if(inventorScene("")) {
+    if(inventorScene("duck.iv")) {
         fprintf(stderr, "couldn't read IV file\n");
         exit(1);
     }
