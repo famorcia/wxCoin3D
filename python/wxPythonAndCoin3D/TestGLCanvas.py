@@ -6,6 +6,22 @@ from OpenGL.GL import *
 from OpenGL.GLUT import *
 
 
+# This routine is called for every mouse button event.
+def myMousePressCB(gate, eventCB):
+    event = eventCB.getEvent()
+
+    # Check for mouse button being pressed
+    if SoMouseButtonEvent.isButtonPressEvent(event, SoMouseButtonEvent.ANY):
+
+        # Toggle the gate that controls the duck motion
+        if gate.enable.getValue():
+            gate.enable = FALSE
+        else:
+            gate.enable = TRUE
+
+        eventCB.setHandled()
+
+
 class TestGLCanvas(GLCanvas):
     def __init__(self, parent, attribs):
         GLCanvas.__init__(self, parent, attribList=attribs)
@@ -106,6 +122,14 @@ class TestGLCanvas(GLCanvas):
         bigDuckRotXYZ.axis = SoRotationXYZ.Y  # Y axis
         bigDuckRotXYZ.angle.connectFrom(bigDuckGate.output)
 
+        # Each mouse button press will enable/disable the gate
+        # controlling the bigger duck.
+        myEventCB = SoEventCallback()
+        myEventCB.addEventCallback(SoMouseButtonEvent.getClassTypeId(),
+                                   myMousePressCB,
+                                   bigDuckGate)
+        root.addChild(myEventCB)
+
         # Use a Boolean engine to make the rotation of the smaller
         # duck depend on the bigger duck.  The smaller duck moves
         # only when the bigger duck is still.
@@ -158,7 +182,6 @@ class TestGLCanvas(GLCanvas):
     def InitGL(self):
         # impostiamo il colore dello sfondo
         glEnable(GL_DEPTH_TEST)
-
 
     # creiamo il metodo onDraw
     def OnDraw(self, *args, **kwargs):

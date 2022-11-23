@@ -26,7 +26,7 @@
 #include "TestGLCanvas.h"
 
 #include <Inventor/SoDB.h>
-
+#include <Inventor/engines/SoEngine.h>
 
 // Define a new application type
 class MyApp : public wxApp
@@ -45,8 +45,6 @@ bool MyApp::OnInit()
 {
     if ( !wxApp::OnInit() )
         return false;
-
-    SoDB::init();
 
     // Create the main frame window
     MyFrame *frame = new MyFrame(NULL,

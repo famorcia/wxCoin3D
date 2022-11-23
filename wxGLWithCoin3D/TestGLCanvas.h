@@ -8,12 +8,12 @@
 #include <wx/glcanvas.h>
 #include <wx/wx.h>
 #include <wx/timer.h>
+#include <Inventor/nodes/SoPerspectiveCamera.h>
 
 
 // OpenGL view data
 struct GLData
 {
-    bool initialized;           // have OpenGL been initialized?
     float beginx, beginy;       // position of mouse
     float quat[4];              // orientation of object
     float zoom;                 // field of view in degrees
@@ -47,11 +47,16 @@ private:
     };
     void InitGL();
     void ResetProjectionMode();
+    int initSceneGraph(const std::string& fileName);
 
+    bool m_isGLInitialized;
     wxTimer m_timer;
     wxGLContext* m_glRC;
-    GLData       m_gldata;
-
+    GLData m_gldata;
+    SoSeparator *root;
+    SoPerspectiveCamera *myCamera;
+    int W;
+    int H;
     wxDECLARE_NO_COPY_CLASS(TestGLCanvas);
     wxDECLARE_EVENT_TABLE();
 };
