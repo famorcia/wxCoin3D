@@ -336,10 +336,6 @@ void TestGLCanvas::OnMouse(wxMouseEvent& event)
     } else if(event.ButtonDown()) {
         std::cout<<"ButtonDown\n";
 
-        SbString data;
-        SoDB::getGlobalField("realTime")->getContainer()->get(data);
-        std::cout<<data.getString()<<std::endl;
-
         SbViewportRegion myViewport(W, H);
         SoHandleEventAction handleEventAction(myViewport);
         SoMouseButtonEvent mouseButtonEvent;

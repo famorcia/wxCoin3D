@@ -10,6 +10,7 @@ from OpenGL.GLUT import *
 def myMousePressCB(gate, eventCB):
     event = eventCB.getEvent()
 
+    print("myMousePressCB")
     # Check for mouse button being pressed
     if SoMouseButtonEvent.isButtonPressEvent(event, SoMouseButtonEvent.ANY):
 
@@ -23,6 +24,8 @@ def myMousePressCB(gate, eventCB):
 
 
 class TestGLCanvas(GLCanvas):
+    TIMER_ID = 1
+
     def __init__(self, parent, attribs):
         GLCanvas.__init__(self, parent, attribList=attribs)
 
@@ -35,12 +38,25 @@ class TestGLCanvas(GLCanvas):
         self.width = None
         self.height = None
         self.size = None
+        self.timer = wx.Timer(self, TestGLCanvas.TIMER_ID)
+        self.timer.Start(1000 / 12)
+
+        self.root = None
+
         self.Bind(wx.EVT_ERASE_BACKGROUND, self.OnEraseBackground)
         self.Bind(wx.EVT_SIZE, self.OnSize)
         self.Bind(wx.EVT_PAINT, self.OnPaint)
+        self.Bind(wx.EVT_LEFT_DOWN, self.OnMouseDown)
+        self.Bind(wx.EVT_LEFT_UP, self.OnMouseUp)
+        self.Bind(wx.EVT_TIMER, self.OnTimer)
+
         self.init_coin3d()
 
     def init_coin3d(self):
+        SoDB.init()
+        if not SoDB.isInitialized():
+            SoDB.init
+
         self.root = SoSeparator()
         root = self.root
 
@@ -160,17 +176,25 @@ class TestGLCanvas(GLCanvas):
 
     def OnPaint(self, event):
         self.SetCurrent(self.context)
-        if not self.init:
-            self.InitGL()
-            self.init = True
+        self.InitGL()
         self.OnDraw()
 
     def OnMouseDown(self, evt):
-        self.CaptureMouse()
         self.x, self.y = self.lastx, self.lasty = evt.GetPosition()
+        myViewport = SbViewportRegion(self.width, self.height)
+        handleEventAction = SoHandleEventAction(myViewport)
+        mouseButtonEvent = SoMouseButtonEvent()
+        mouseButtonEvent.setButton(button=SoMouseButtonEvent.BUTTON1)
+        mouseButtonEvent.setState(state=SoButtonEvent.DOWN)
+        handleEventAction.setEvent(mouseButtonEvent)
+        handleEventAction.apply(self.root)
+        self.Refresh(False)
+        SoDB.getSensorManager().processTimerQueue()
+        evt.Skip()
 
     def OnMouseUp(self, evt):
-        self.ReleaseMouse()
+        print("OnMouseUp")
+        evt.Skip()
 
     def OnMouseMotion(self, evt):
         if evt.Dragging() and evt.LeftIsDown():
@@ -180,10 +204,11 @@ class TestGLCanvas(GLCanvas):
 
     # inizializziamo il canvas
     def InitGL(self):
-        # impostiamo il colore dello sfondo
+        if self.init:
+            return
         glEnable(GL_DEPTH_TEST)
+        self.init = True
 
-    # creiamo il metodo onDraw
     def OnDraw(self, *args, **kwargs):
         self.SetCurrent(self.context)
         glClearColor(0.3, 0.4, 0.6, 1)
@@ -193,6 +218,10 @@ class TestGLCanvas(GLCanvas):
         myRenderAction = SoGLRenderAction(myViewport)
         myRenderAction.apply(self.root)
 
-        print('Draw')
+        glFlush()
         self.SwapBuffers()
+        self.Refresh(False)
+
+    def OnTimer(self, event):
+        SoDB.getSensorManager().processTimerQueue()
         self.Refresh(False)
