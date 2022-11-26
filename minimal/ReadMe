@@ -1,0 +1,8 @@
+This is a minimal example for having a wxGLCanvas able to host a Coin3D application.
+
+This example is based on penguin.cpp provided as wxGLCanvas demo program
+Original Author: Robert Roebling
+Modified by: Sandro Sigala
+Created: 04/01/98
+Copyright: (c) Robert Roebling
+Licence: wxWindows licence

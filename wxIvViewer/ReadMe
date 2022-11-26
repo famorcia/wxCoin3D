@@ -1,0 +1,8 @@
+This example show how to use action on mouse for moving object in the window.
+
+This example is based on penguin.cpp provided as wxGLCanvas demo program
+Original Author: Robert Roebling
+Modified by: Sandro Sigala
+Created: 04/01/98
+Copyright: (c) Robert Roebling
+Licence: wxWindows licence

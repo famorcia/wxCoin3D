@@ -16,25 +16,11 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
 # USA
 
-cmake_minimum_required(VERSION 3.20)
-project(wxCoin3D)
+ADD_EXECUTABLE(glutDuck Coin3DCanvas.cpp MyFrame.cpp main.cpp)
 
-include(FindPkgConfig)
-include(FindOpenGL)
+TARGET_LINK_LIBRARIES(glutDuck PRIVATE
+        OpenGL::GL
+        OpenGL::GLU
+        ${COIN3D_LINK_LIBRARIES}
+        ${wxWidgets_LIBRARIES})
 
-if(NOT OPENGL_FOUND)
-    message(FATAL_ERROR "GL is required")
-endif()
-if(NOT OPENGL_GLU_FOUND)
-    message(FATAL_ERROR "GLU is required")
-endif()
-
-pkg_check_modules (COIN3D Coin REQUIRED)
-
-find_package(wxWidgets REQUIRED gl core base OPTIONAL_COMPONENTS net)
-
-include(${wxWidgets_USE_FILE} ${COIN3D_INCLUDE_DIRS})
-
-add_subdirectory(minimal)
-add_subdirectory(glutDuck)
-add_subdirectory(wxIvViewer)

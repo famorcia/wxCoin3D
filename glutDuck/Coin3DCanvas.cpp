@@ -1,30 +1,27 @@
-//
-// Created by coflight on 19/11/22.
-//
+/*
+ * wxCoin3D Porting on wxWidgets of Coin3D (a.k.a Open Inventor) examples
+ * Copyright (C) 2022  Fabrizio Morciano
 
-#include "TestGLCanvas.h"
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
+ * USA
+ */
+
+#include "Coin3DCanvas.h"
 #include "wx/wx.h"
 #include "wx/file.h"
 #include "wx/dcclient.h"
-#include "wx/wfstream.h"
-#if wxUSE_ZLIB
-#include "wx/zstream.h"
-#endif
-
-
-// ---------------------------------------------------------------------------
-// TestGLCanvas
-// ---------------------------------------------------------------------------
-
-wxBEGIN_EVENT_TABLE(TestGLCanvas, wxGLCanvas)
-                EVT_SIZE(TestGLCanvas::OnSize)
-                EVT_PAINT(TestGLCanvas::OnPaint)
-                EVT_ERASE_BACKGROUND(TestGLCanvas::OnEraseBackground)
-                EVT_MOUSE_EVENTS(TestGLCanvas::OnMouse)
-                EVT_TIMER(TIMER_ID, TestGLCanvas::OnTimer)
-wxEND_EVENT_TABLE()
-
-
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <GL/glut.h>
@@ -53,6 +50,15 @@ wxEND_EVENT_TABLE()
 #include <Inventor/nodekits/SoNodeKit.h>
 #include <Inventor/SoInteraction.h>
 
+wxBEGIN_EVENT_TABLE(Coin3DCanvas, wxGLCanvas)
+                EVT_SIZE(Coin3DCanvas::OnSize)
+                EVT_PAINT(Coin3DCanvas::OnPaint)
+                EVT_ERASE_BACKGROUND(Coin3DCanvas::OnEraseBackground)
+                EVT_MOUSE_EVENTS(Coin3DCanvas::OnMouse)
+                EVT_TIMER(TIMER_ID, Coin3DCanvas::OnTimer)
+wxEND_EVENT_TABLE()
+
+
 // This routine is called for every mouse button event.
 void
 myMousePressCB(void *userData, SoEventCallback *eventCB)
@@ -60,51 +66,28 @@ myMousePressCB(void *userData, SoEventCallback *eventCB)
     SoGate *gate = (SoGate *) userData;
     const SoEvent *event = eventCB->getEvent();
 
-    std::cout<<"myMousePressCB\n";
-
     // Check for mouse button being pressed
     if (SO_MOUSE_PRESS_EVENT(event, ANY)) {
-
-        std::cout<<"myMousePressCB 2\n";
-
         // Toggle the gate that controls the duck motion
         if (gate->enable.getValue()) {
             gate->enable.setValue(FALSE);
-            std::cout<<"myMousePressCB 2.1\n";
         }
         else {
-            std::cout<<"myMousePressCB 2.2\n";
             gate->enable.setValue(TRUE);
         }
         eventCB->setHandled();
     }
 }
 
-
 int
-TestGLCanvas::initSceneGraph(const std::string& fileName)
+Coin3DCanvas::initSceneGraph(const std::string& fileName)
 {
     if(root)
         root->unref();
 
     root = new SoSeparator;
     root->ref();
-#if 0
-    // Add a camera, light, and material
-    myCamera = new SoPerspectiveCamera;
-    root->addChild(myCamera);
-    root->addChild(new SoDirectionalLight);
-    SoMaterial *myMaterial = new SoMaterial;
-    myMaterial->diffuseColor.setValue(1.0, 0.0, 0.0);
-    root->addChild(myMaterial);
 
-    // Create a Text3 object, and connect to the realTime field
-    SoText3 *myText = new SoText3;
-    myText->set("Hello World");
-    root->addChild(myText);
-    myText->string.connectFrom(SoDB::getGlobalField("realTime"));
-
-#else
     // Add a camera and light
     //SoPerspectiveCamera *
     myCamera = new SoPerspectiveCamera;
@@ -215,7 +198,6 @@ TestGLCanvas::initSceneGraph(const std::string& fileName)
 
 // CODE FOR The Inventor Mentor ENDS HERE
 /////////////////////////////////////////////////////////////
-#endif
 
     SbViewportRegion myViewport(W, H);
     myCamera->viewAll(root, myViewport);
@@ -224,7 +206,7 @@ TestGLCanvas::initSceneGraph(const std::string& fileName)
 }
 
 
-TestGLCanvas::TestGLCanvas(wxWindow *parent,
+Coin3DCanvas::Coin3DCanvas(wxWindow *parent,
                            wxGLAttributes& attributes,
                            wxWindowID id,
                            const wxPoint& pos,
@@ -238,25 +220,19 @@ TestGLCanvas::TestGLCanvas(wxWindow *parent,
                      size,
                      style | wxFULL_REPAINT_ON_RESIZE,
                      name)
-        , m_timer(this, TIMER_ID)
+        , timer(this, TIMER_ID)
 {
     root = 0;
     myCamera = 0;
 
     // Explicitly create a new rendering context instance for this canvas.
-    m_glRC = new wxGLContext(this);
+    glRealContext = new wxGLContext(this);
 
-    m_isGLInitialized = false;
-
-    // initialize view matrix
-    m_gldata.beginx = 0.0f;
-    m_gldata.beginy = 0.0f;
-    m_gldata.zoom   = 45.0f;
+    isGLInitialized = false;
 
     SoDB::init();
     SoNodeKit::init();
     SoInteraction::init();
-
 
     if(initSceneGraph("duck.iv")) {
         fprintf(stderr, "couldn't read IV file\n");
@@ -265,68 +241,46 @@ TestGLCanvas::TestGLCanvas(wxWindow *parent,
 
     W = size.x;
     H = size.y;
-    m_timer.Start(1000/12);    // 1/12 second interval
+    timer.Start(1000 / 12);    // 1/12 second interval
 }
 
-TestGLCanvas::~TestGLCanvas()
+Coin3DCanvas::~Coin3DCanvas()
 {
-    delete m_glRC;
+    delete glRealContext;
 }
 
-void TestGLCanvas::OnPaint( wxPaintEvent& WXUNUSED(event) )
-{
-    // must always be here
+void Coin3DCanvas::OnPaint(wxPaintEvent& WXUNUSED(event) ) {
     wxPaintDC dc(this);
 
-    SetCurrent(*m_glRC);
-
     InitGL();
-
-    // Clear
-    glClearColor( 0.3f, 0.4f, 0.6f, 1.0f );
-    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
     SbViewportRegion myViewport(W, H);
 
     SoGLRenderAction myRenderAction(myViewport);
     myRenderAction.apply(root);
 
-    //*
-    static int counter = 0;
-    std::clog<<"Ci sono_"<<++counter<<std::endl;
-    //*/
-    // Flush
     glFlush();
-
-    // Swap
     SwapBuffers();
 }
 
-void TestGLCanvas::OnSize(wxSizeEvent& event)
+void Coin3DCanvas::OnSize(wxSizeEvent& event)
 {
-    // Reset the OpenGL view aspect.
-    // This is OK only because there is only one canvas that uses the context.
-    // See the cube sample for that case that multiple canvases are made current with one context.
     W = event.GetSize().x;
     H = event.GetSize().y;
-    ResetProjectionMode();
 }
 
-void TestGLCanvas::OnEraseBackground(wxEraseEvent& WXUNUSED(event))
+void Coin3DCanvas::OnEraseBackground(wxEraseEvent& WXUNUSED(event))
 {
     // Do nothing, to avoid flashing on MSW
 }
 
-void TestGLCanvas::LoadIV(const wxString& filename)
+void Coin3DCanvas::LoadIV(const wxString& filename)
 {
     initSceneGraph(std::string(filename.c_str()));
 }
 
-void TestGLCanvas::OnMouse(wxMouseEvent& event)
+void Coin3DCanvas::OnMouse(wxMouseEvent& event)
 {
-    m_gldata.beginx = event.GetX();
-    m_gldata.beginy = event.GetY();
-
     if (event.Dragging())
     {
         wxSize sz(GetClientSize());
@@ -334,8 +288,6 @@ void TestGLCanvas::OnMouse(wxMouseEvent& event)
         /* orientation has changed, redraw mesh */
         Refresh(false);
     } else if(event.ButtonDown()) {
-        std::cout<<"ButtonDown\n";
-
         SbViewportRegion myViewport(W, H);
         SoHandleEventAction handleEventAction(myViewport);
         SoMouseButtonEvent mouseButtonEvent;
@@ -348,42 +300,27 @@ void TestGLCanvas::OnMouse(wxMouseEvent& event)
     }
 }
 
-void TestGLCanvas::InitGL()
+void Coin3DCanvas::InitGL()
 {
-    if(m_isGLInitialized)
-        return;
-    ResetProjectionMode();
-    glEnable(GL_DEPTH_TEST);
-    m_isGLInitialized = true;
+    SetCurrent(*glRealContext);
+    if(!isGLInitialized) {
+        glEnable(GL_DEPTH_TEST);
+        isGLInitialized = true;
+    }
+
+    // Clear
+    glClearColor( 0.3f, 0.4f, 0.6f, 1.0f );
+    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 }
 
-void TestGLCanvas::ResetProjectionMode()
+
+void Coin3DCanvas::OnTimer(wxTimerEvent& event)
 {
-    if ( !IsShownOnScreen() )
-        return;
-
-    // This is normally only necessary if there is more than one wxGLCanvas
-    // or more than one wxGLContext in the application.
-    SetCurrent(*m_glRC);
-
-    const wxSize ClientSize = GetClientSize() * GetContentScaleFactor();
-
-    // It's up to the application code to update the OpenGL viewport settings.
-    // In order to avoid extensive context switching, consider doing this in
-    // OnPaint() rather than here, though.
-    glViewport(0, 0, ClientSize.x, ClientSize.y);
-
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    gluPerspective(45, double(ClientSize.x) / ClientSize.y, 1, 100);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-}
-
-void TestGLCanvas::OnTimer(wxTimerEvent& event)
-{
-    // do whatever you want to do every second here
-    // angle += 0.1;
     SoDB::getSensorManager()->processTimerQueue();
     Refresh(false);
+}
+
+
+void  Coin3DCanvas::InitEmptyScene() {
+
 }
