@@ -1,4 +1,6 @@
 This example is an adaption of duck.c++ GLUT (OpenGL Utility Toolkit) Open Inventor example.
+/* Copyright (c) Mark J. Kilgard, 1994. */
+
 This example show how to use SoEngine in an wxWidget based application.
 
 This example is based on penguin.cpp provided as wxGLCanvas demo program
