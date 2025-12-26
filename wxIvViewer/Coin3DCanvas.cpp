@@ -72,7 +72,7 @@ Coin3DCanvas::Coin3DCanvas(wxWindow *parent,
 
 
     // Add a camera and light
-    SoPerspectiveCamera * myCamera = new SoPerspectiveCamera;
+    auto myCamera = new SoPerspectiveCamera;
     myCamera->ref();
     myCamera->position.setValue(0., -4., 8.0);
     myCamera->heightAngle = M_PI/2.5;
@@ -102,7 +102,7 @@ Coin3DCanvas::~Coin3DCanvas()
 void Coin3DCanvas::OnPaint(wxPaintEvent& WXUNUSED(event) ) {
     wxPaintDC dc(this);
 
-    InitGL();
+    initGL();
 
     sceneManager->render();
 
@@ -139,7 +139,7 @@ void Coin3DCanvas::LoadIV(const wxString& fileName)
     if (!myInput.openFile(fileName.c_str()))
         exit (1);
     SoSeparator *ivObject = SoDB::readAll(&myInput);
-    if (ivObject == NULL)
+    if (ivObject == nullptr)
         exit (1);
 
     root->addChild(ivObject);
@@ -170,7 +170,7 @@ void Coin3DCanvas::OnMouse(wxMouseEvent& event)
     }
 }
 
-void Coin3DCanvas::InitGL()
+void Coin3DCanvas::initGL()
 {
     SetCurrent(*glRealContext);
     if(!isGLInitialized) {

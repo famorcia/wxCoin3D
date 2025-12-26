@@ -252,7 +252,7 @@ Coin3DCanvas::~Coin3DCanvas()
 void Coin3DCanvas::OnPaint(wxPaintEvent& WXUNUSED(event) ) {
     wxPaintDC dc(this);
 
-    InitGL();
+    initGL();
 
     SbViewportRegion myViewport(W, H);
 
@@ -300,7 +300,7 @@ void Coin3DCanvas::OnMouse(wxMouseEvent& event)
     }
 }
 
-void Coin3DCanvas::InitGL()
+void Coin3DCanvas::initGL()
 {
     SetCurrent(*glRealContext);
     if(!isGLInitialized) {

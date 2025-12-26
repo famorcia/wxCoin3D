@@ -38,7 +38,7 @@ MyFrame::MyFrame(wxFrame *frame,
     Show(true);
 
     wxGLAttributes dispAttrs;
-    dispAttrs.PlatformDefaults().MinRGBA(8, 8, 8, 8).DoubleBuffer().Depth(32).EndList();
+    dispAttrs.PlatformDefaults().MinRGBA(8, 8, 8, 8).DoubleBuffer().Depth(24).EndList();
     m_canvas = new Coin3DCanvas(this,
                                 dispAttrs,
                                 wxID_ANY,

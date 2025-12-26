@@ -29,11 +29,14 @@ if(NOT OPENGL_GLU_FOUND)
     message(FATAL_ERROR "GLU is required")
 endif()
 
+find_package(GLUT REQUIRED)
+
 pkg_check_modules (COIN3D Coin REQUIRED)
 
 find_package(wxWidgets REQUIRED gl core base OPTIONAL_COMPONENTS net)
 
-include(${wxWidgets_USE_FILE} ${COIN3D_INCLUDE_DIRS})
+include(${wxWidgets_USE_FILE})
+include_directories(${COIN3D_INCLUDE_DIRS} ${GLUT_INCLUDE_DIR})
 
 add_subdirectory(minimal)
 add_subdirectory(glutDuck)

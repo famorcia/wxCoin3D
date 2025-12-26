@@ -32,7 +32,8 @@ public:
                  wxGLAttributes&,
                  wxWindowID id = wxID_ANY,
                  const wxPoint& pos = wxDefaultPosition,
-                 const wxSize& size = wxDefaultSize, long style = 0,
+                 const wxSize& size = wxDefaultSize,
+                 long style = 0,
                  const wxString& name = "TestGLCanvas"
     );
 
@@ -51,7 +52,7 @@ private:
     enum {
         TIMER_ID = 3000
     };
-    void InitGL();
+    void initGL();
     void InitEmptyScene();
     int initSceneGraph(const std::string& fileName);
 
@@ -59,8 +60,8 @@ private:
     wxTimer timer;
     wxGLContext* glRealContext;
     SoSceneManager* sceneManager;
-    int W;
-    int H;
+    short W;
+    short H;
     wxDECLARE_NO_COPY_CLASS(Coin3DCanvas);
     wxDECLARE_EVENT_TABLE();
 };

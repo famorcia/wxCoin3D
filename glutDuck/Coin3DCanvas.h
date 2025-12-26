@@ -51,7 +51,7 @@ private:
     enum {
         TIMER_ID = 3000
     };
-    void InitGL();
+    void initGL();
     void InitEmptyScene();
     int initSceneGraph(const std::string& fileName);
 

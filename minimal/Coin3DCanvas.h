@@ -24,7 +24,8 @@
 #include <wx/glcanvas.h>
 #include <wx/wx.h>
 #include <wx/timer.h>
-#include <Inventor/nodes/SoPerspectiveCamera.h>
+#include <Inventor/nodes/SoRotationXYZ.h>
+
 
 class Coin3DCanvas : public wxGLCanvas
 {
@@ -50,16 +51,18 @@ private:
     enum {
         TIMER_ID = 3000
     };
-    void InitGL();
-    int InitDuckGraph();
-
+    void initGL();
+    void globeScene();
     bool isGLInitialized;
     wxTimer timer;
     wxGLContext* glRealContext;
+
     SoSeparator *root;
-    SoPerspectiveCamera *myCamera;
-    int W;
-    int H;
+    SoRotationXYZ *globeSpin;
+
+    float angle;
+    short W;
+    short H;
     wxDECLARE_NO_COPY_CLASS(Coin3DCanvas);
     wxDECLARE_EVENT_TABLE();
 };
